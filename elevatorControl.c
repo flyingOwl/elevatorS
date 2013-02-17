@@ -119,6 +119,10 @@ int addPassengers(int nPassengers){
 	return 0;
 }
 
+int getFreeSpace(){
+	return maxPassengers - currentPassengers;
+}
+
 int removePassengers(int nPassengers){
 	currentPassengers -= nPassengers;
 	return (currentPassengers < 0);
