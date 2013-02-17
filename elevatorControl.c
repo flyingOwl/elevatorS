@@ -10,8 +10,9 @@ int totalLevels;
 
 int maxPassengers;
 int currentPassengers;
+double moveSpeed;
 
-int init(int totalLs, int maxPs){
+int init(int totalLs, int maxPs, int steps){
 	calledLevels  = malloc(totalLs * sizeof(int));
 	pressedLevels = malloc(totalLs * sizeof(int));
 	if(!calledLevels || !pressedLevels){
@@ -24,7 +25,20 @@ int init(int totalLs, int maxPs){
 	totalLevels   = totalLs;
 	maxPassengers = maxPs;
 	currentPassengers = 0;
+	moveSpeed = 1 / steps;
 	return 0;
+}
+
+int simulateStep(){
+	currentLevel += (currentMovement * moveSpeed);
+	int cTemp = (int) currentLevel;
+	if(cTemp == currentLevel){
+		//reached a level...
+		if(reachLevel(cTemp)){
+			openDoors(cTemp);
+		}
+	}
+	currentMovement = calcMovement();
 }
 
 int callElevator(int fromLevel){
@@ -37,6 +51,7 @@ int callElevator(int fromLevel){
 int pressLevelButton(int toLevel){
 	//level-button inside elevator pressed, when passengers enter
 	pressedLevels[toLevel]++;
+	return 0;
 }
 
 int calcMovement(){
@@ -65,11 +80,16 @@ int calcMovement(){
 			return (temp) ? DIR_UP : DIR_DOWN;
 		}
 	}
+	return 0;
 }
 
 int reachLevel(int atlevel){
 	//return: stop or not to stop
-
+	if(calledLevels[atLevel] || pressedLevels[atLevel]){
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
 int openDoors(int atLevel){
@@ -82,6 +102,10 @@ int openDoors(int atLevel){
 			return 0;
 		}
 	}
+
+	//call passenger control -> add/remove them
+	passengerLevel(atLevel);
+
 	return 0;
 }
 
@@ -93,4 +117,9 @@ int addPassengers(int nPassengers){
 		currentPassengers += nPassengers;
 	}
 	return 0;
+}
+
+int removePassengers(int nPassengers){
+	currentPassengers -= nPassengers;
+	return (currentPassengers < 0);
 }
