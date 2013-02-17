@@ -5,4 +5,4 @@ struct passengerWaiting {
 
 struct passengerInside {
 	int destination;
-}
+};

@@ -1,4 +1,5 @@
 #include "elevator.h"
+#include <stdlib.h>
 
 double currentLevel; //double, -> 1/2 level
 int destinationLevel;
@@ -31,7 +32,7 @@ int init(int totalLs, int maxPs, int steps){
 
 int simulateStep(){
 	currentLevel += (currentMovement * moveSpeed);
-	int cTemp = (int) currentLevel;
+	int cTemp = currentLevel;
 	if(cTemp == currentLevel){
 		//reached a level...
 		if(reachLevel(cTemp)){
@@ -77,13 +78,13 @@ int calcMovement(){
 					temp = 1;
 				}
 			}
-			return (temp) ? DIR_UP : DIR_DOWN;
+			return (temp) ? DIR_DOWN : DIR_UP;
 		}
 	}
 	return 0;
 }
 
-int reachLevel(int atlevel){
+int reachLevel(int atLevel){
 	//return: stop or not to stop
 	if(calledLevels[atLevel] || pressedLevels[atLevel]){
 		return 1;

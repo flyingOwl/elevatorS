@@ -1,13 +1,14 @@
 #include "passenger.h"
+#include <stdlib.h>
 
-struct passengerInside  * inSider;
+struct passengerInside **  inSider;
 int mInside;
-struct passengerWaiting * waiters;
+struct passengerWaiting ** waiters;
 int mWaiting;
 
 int initPassengers(int maxWaiters, int maxPassengers){
-	inSider = malloc(maxPassengers * sizeof(struct passengerInside));
-	waiters = malloc(maxWaiters * sizeof(struct passengerWaiting));
+	inSider = malloc(maxPassengers * sizeof(struct passengerInside *));
+	waiters = malloc(maxWaiters * sizeof(struct passengerWaiting *));
 	mInside = maxPassengers;
 	mWaiting = maxWaiters;
 	if(!inSider || !waiters){
@@ -32,8 +33,8 @@ int createNew(int fromFloor, int toFloor){
 	while(waiters[i]){
 		i++;
 	}
-	waiters[i].origin = fromFloor;
-	waiters[i].destination = toFloor;
+	waiters[i]->origin = fromFloor;
+	waiters[i]->destination = toFloor;
 	return 0;
 }
 
@@ -44,7 +45,7 @@ int passengerLevel(int level){
 	//Take out all passengers Inside with destination = currentLevel
 	int i = 0, count = 0;
 	for(; i < mInside; i++){
-		if(inSider[i].destination == level){
+		if(inSider[i]->destination == level){
 			count++;
 			inSider[i] = 0;
 		}
@@ -56,7 +57,7 @@ int passengerLevel(int level){
 	int cNew = getFreeSpace(); //...in elevator
 	count = 0;
 	for(i = 0; i < mWaiting && count < cNew; i++){
-		if(waiters[i].origin == level){
+		if(waiters[i]->origin == level){
 			count++;
 			movePassengerInside(waiters[i]);
 			waiters[i] = 0;
@@ -69,12 +70,12 @@ int passengerLevel(int level){
 	return 0;
 }
 
-int movePassengerInside(struct passengerWaiting myPassenger){
+int movePassengerInside(struct passengerWaiting * myPassenger){
 	int i = 0;
 	while(inSider[i]){
 		i++;
 	}
 	
-	inSider[i].destination = myPassenger.destination;
+	inSider[i]->destination = myPassenger->destination;
 	return 0;
 }
