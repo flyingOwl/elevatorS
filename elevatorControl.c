@@ -24,7 +24,8 @@ int initElevator(int totalLs, int maxPs, int steps){
 	}
 	int i = 0;
 	for(; i < totalLs; i++){
-		calledLevels[i] = -1;
+		calledLevels[i]  = 0;
+		pressedLevels[i] = 0;
 	}
 	totalLevels   = totalLs;
 	maxPassengers = maxPs;
@@ -39,12 +40,12 @@ int simulateStep(){
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
 		//reached a level...
-		if(reachLevel(cTemp)){
+		if(reachLevel(cTemp) == 1){
 			openDoors(cTemp);
 		}
 	}
 	currentMovement = calcMovement();
-	  printf("ELEVATOR: movement = %d\n",currentMovement);
+	  printf("ELEVATOR: moving %d -> position = %f (%d passengers)\n",currentMovement,currentLevel,currentPassengers);
 	return 0;
 }
 
@@ -79,7 +80,7 @@ int calcMovement(){
 		}
 		case DIR_DOWN: {
 			nextLevel = (int) (currentLevel);
-			for(i = nextLevel; i >= 0; i--){
+			for(i = nextLevel; i >= 0 && currentLevel > 0; i--){
 				if(calledLevels[i] || pressedLevels[i]){
 					temp = 1;
 				}
@@ -90,7 +91,7 @@ int calcMovement(){
 			return DIR_UP;
 		}
 	}
-	//return 0;
+	return 0;
 }
 
 int reachLevel(int atLevel){
@@ -105,17 +106,9 @@ int reachLevel(int atLevel){
 int openDoors(int atLevel){
 	//reset all calls at/to this level
 	pressedLevels[atLevel] = 0;
-	int i = 0;
-	for(; i < totalLevels; i++){
-		if(calledLevels[i] == atLevel){
-			calledLevels[i] = -1;
-			return 0;
-		}
-	}
-
+	calledLevels[atLevel]  = 0;
 	//call passenger control -> add/remove them
 	passengerLevel(atLevel);
-
 	return 0;
 }
 
