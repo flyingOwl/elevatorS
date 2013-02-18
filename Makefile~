@@ -5,7 +5,7 @@ elevatorControl.o: elevatorControl.c
 	gcc -Wall -c -o elevatorControl.o elevatorControl.c
 
 passengerController.o: passengerController.c
-	gcc -Wall -c -o passengerController.o passengerController.c
+	gcc -Wall -c -D DEBUG -o passengerController.o passengerController.c
 
 simulator.o: simulator.c
 	gcc -Wall -c -o simulator.o simulator.c

@@ -1,5 +1,8 @@
 #include "elevator.h"
 #include <stdlib.h>
+#include "passenger.h"
+
+#include <stdio.h>
 
 double currentLevel; //double, -> 1/2 level
 int destinationLevel;
@@ -13,7 +16,7 @@ int maxPassengers;
 int currentPassengers;
 double moveSpeed;
 
-int init(int totalLs, int maxPs, int steps){
+int initElevator(int totalLs, int maxPs, int steps){
 	calledLevels  = malloc(totalLs * sizeof(int));
 	pressedLevels = malloc(totalLs * sizeof(int));
 	if(!calledLevels || !pressedLevels){
@@ -26,13 +29,14 @@ int init(int totalLs, int maxPs, int steps){
 	totalLevels   = totalLs;
 	maxPassengers = maxPs;
 	currentPassengers = 0;
-	moveSpeed = 1 / steps;
+	moveSpeed = 1 / (double) steps;
+	    printf("ELEVATOR: moveSpeed = %.50f\n",moveSpeed);
 	return 0;
 }
 
 int simulateStep(){
 	currentLevel += (currentMovement * moveSpeed);
-	int cTemp = currentLevel;
+	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
 		//reached a level...
 		if(reachLevel(cTemp)){
@@ -40,6 +44,8 @@ int simulateStep(){
 		}
 	}
 	currentMovement = calcMovement();
+	  printf("ELEVATOR: movement = %d\n",currentMovement);
+	return 0;
 }
 
 int callElevator(int fromLevel){
@@ -59,7 +65,7 @@ int calcMovement(){
 	//called from main every xy seconds
 	//calculate level to move to
 
-	//1. dummy implementation:
+	//first dummy implementation:
 	int nextLevel, i, temp = 0;
 	switch(currentMovement){
 		case DIR_UP: {
@@ -73,15 +79,18 @@ int calcMovement(){
 		}
 		case DIR_DOWN: {
 			nextLevel = (int) (currentLevel);
-			for(i = nextLevel; i >= 0; i++){
+			for(i = nextLevel; i >= 0; i--){
 				if(calledLevels[i] || pressedLevels[i]){
 					temp = 1;
 				}
 			}
 			return (temp) ? DIR_DOWN : DIR_UP;
 		}
+		case 0: {
+			return DIR_UP;
+		}
 	}
-	return 0;
+	//return 0;
 }
 
 int reachLevel(int atLevel){
@@ -120,11 +129,15 @@ int addPassengers(int nPassengers){
 	return 0;
 }
 
+int removePassengers(int nPassengers){
+	currentPassengers -= nPassengers;
+	return (currentPassengers < 0);
+}
+
 int getFreeSpace(){
 	return maxPassengers - currentPassengers;
 }
 
-int removePassengers(int nPassengers){
-	currentPassengers -= nPassengers;
-	return (currentPassengers < 0);
+int getPassengers(){
+	return currentPassengers;
 }
