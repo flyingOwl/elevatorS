@@ -30,12 +30,14 @@ int initElevator(int totalLs, int maxPs, int steps){
 	totalLevels   = totalLs;
 	maxPassengers = maxPs;
 	currentPassengers = 0;
+	currentMovement   = 0;
 	moveSpeed = 1 / (double) steps;
-	    printf("ELEVATOR: moveSpeed = %.50f\n",moveSpeed);
+	    printf("ELEVATOR: moveSpeed = %.8f\n",moveSpeed);
 	return 0;
 }
 
 int simulateStep(){
+	currentMovement = calcMovement();
 	currentLevel += (currentMovement * moveSpeed);
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
@@ -44,15 +46,18 @@ int simulateStep(){
 			openDoors(cTemp);
 		}
 	}
-	currentMovement = calcMovement();
 	  printf("ELEVATOR: moving %d -> position = %f (%d passengers)\n",currentMovement,currentLevel,currentPassengers);
 	return 0;
 }
 
 int callElevator(int fromLevel){
 	//add level to List of waiting-queue
-	
 	calledLevels[fromLevel] = 1;
+	
+	//when elevator not moving -> move directly to called level:
+	if(currentMovement == DIR_NONE){
+		currentMovement = (currentLevel < fromLevel) ? DIR_UP : DIR_DOWN;
+	}
 	return 0;
 }
 
@@ -62,33 +67,56 @@ int pressLevelButton(int toLevel){
 	return 0;
 }
 
+int calledToLevels(int current, int direction){
+	//checks if there are called levels in given direction
+	int temp = 0;
+	for(; current >= 0 && current < totalLevels; current += direction){
+		if(calledLevels[current] || pressedLevels[current]){
+			temp = 1;
+		}
+	}
+	return temp;
+}
+
 int calcMovement(){
-	//called from main every xy seconds
 	//calculate level to move to
 
 	//first dummy implementation:
-	int nextLevel, i, temp = 0;
+	int nextLevel;
 	switch(currentMovement){
 		case DIR_UP: {
 			nextLevel = (int) (currentLevel + 1);
-			for(i = nextLevel; i < totalLevels; i++){
-				if(calledLevels[i] || pressedLevels[i]){
-					temp = 1;
+			if(calledToLevels(nextLevel,DIR_UP)){ 
+				return DIR_UP;
+			} else {
+				if(calledToLevels(nextLevel,DIR_DOWN)){ 
+					return DIR_DOWN;
+				} else {
+					return DIR_NONE;
 				}
 			}
-			return (temp) ? DIR_UP : DIR_DOWN;
 		}
 		case DIR_DOWN: {
-			nextLevel = (int) (currentLevel);
-			for(i = nextLevel; i >= 0 && currentLevel > 0; i--){
-				if(calledLevels[i] || pressedLevels[i]){
-					temp = 1;
+			nextLevel = (int) currentLevel;
+			if(calledToLevels(nextLevel,DIR_DOWN)){ 
+				return DIR_DOWN;
+			} else {
+				if(calledToLevels(nextLevel,DIR_UP)){ 
+					return DIR_UP;
+				} else {
+					return DIR_NONE;
 				}
 			}
-			return (temp) ? DIR_DOWN : DIR_UP;
 		}
 		case 0: {
-			return DIR_UP;
+			if(calledToLevels((int) currentLevel, DIR_UP)){
+				return DIR_UP;
+			} else {
+				if(calledToLevels((int) currentLevel, DIR_DOWN)){
+					return DIR_DOWN;
+				}
+			}
+			return 0;
 		}
 	}
 	return 0;
@@ -108,7 +136,7 @@ int openDoors(int atLevel){
 	pressedLevels[atLevel] = 0;
 	calledLevels[atLevel]  = 0;
 	//call passenger control -> add/remove them
-	passengerLevel(atLevel);
+	passengerLevel(atLevel,currentMovement);
 	return 0;
 }
 

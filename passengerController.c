@@ -46,7 +46,7 @@ int createNew(int fromFloor, int toFloor){
 	return 1;
 }
 
-int passengerLevel(int level){
+int passengerLevel(int level, int direction){
 	//called when elevator opens
 	//take out and put in new passengers
 

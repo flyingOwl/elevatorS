@@ -9,6 +9,6 @@ struct passengerInside {
 
 int initPassengers(int maxWaiters, int maxPassengers);
 int createNew(int fromFloor, int toFloor);
-int passengerLevel(int level);
+int passengerLevel(int level, int direction);
 
 int movePassengerInside(struct passengerWaiting * myPassenger);
