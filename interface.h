@@ -1,0 +1,1 @@
+int interfaceLoop(int loopWait);
