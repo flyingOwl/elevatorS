@@ -1,7 +1,6 @@
 #include "passenger.h"
 #include "elevator.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 struct passengerInside **  inSider;
 int mInside;
@@ -31,7 +30,6 @@ int createNew(int fromFloor, int toFloor){
 	if(fromFloor == toFloor){
 		return 1;
 	}
-	  printf("new Passenger from floor %d to %d\n", fromFloor, toFloor);
 	int i = 0;
 	while(waiters[i]){
 		i++;
@@ -61,7 +59,6 @@ int passengerLevel(int level, int direction){
 	}
 	//remove number from elevator:
 	removePassengers(count);
-	int temp = count;
 
 	//Add new passengers:
 	int cNew = getFreeSpace(); //...in elevator
@@ -87,7 +84,6 @@ int passengerLevel(int level, int direction){
 	if(addPassengers(count)){
 		//elevator is FULL ... wait what??
 	}
-	  printf("Level = %d; %d leaving; %d new\n",level,temp,count);
 	return 0;
 }
 
@@ -103,4 +99,14 @@ int movePassengerInside(struct passengerWaiting * myPassenger){
 		return 0;
 	}
 	return 1;
+}
+
+int getWaitersAtLevel(int level){
+	int temp = 0, i = 0;
+	for(; i < mWaiting; i++){
+		if(waiters[i] && waiters[i]->origin == level){
+			temp++;
+		}
+	}
+	return temp;
 }

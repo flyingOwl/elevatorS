@@ -11,4 +11,6 @@ int initPassengers(int maxWaiters, int maxPassengers);
 int createNew(int fromFloor, int toFloor);
 int passengerLevel(int level, int direction);
 
+int getWaitersAtLevel(int level);
+
 int movePassengerInside(struct passengerWaiting * myPassenger);

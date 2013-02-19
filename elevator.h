@@ -18,3 +18,5 @@ int getPassengers();
 int reachLevel(int atLevel);
 int openDoors(int atLevel);
 int calcMovement();
+int getTotalLevels();
+int getCurrentLevelRound();

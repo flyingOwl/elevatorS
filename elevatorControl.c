@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include "passenger.h"
 
-#include <stdio.h>
-
 double currentLevel; //double, -> 1/2 level
 int destinationLevel;
 int currentMovement;
@@ -32,7 +30,6 @@ int initElevator(int totalLs, int maxPs, int steps){
 	currentPassengers = 0;
 	currentMovement   = 0;
 	moveSpeed = 1 / (double) steps;
-	    printf("ELEVATOR: moveSpeed = %.8f\n",moveSpeed);
 	return 0;
 }
 
@@ -59,7 +56,6 @@ int simulateStep(){
 			openDoors(cTemp);
 		}
 	}
-	  printf("ELEVATOR: moving %d -> position = %f (%d passengers)\n",currentMovement,currentLevel,currentPassengers);
 	return 0;
 }
 
@@ -181,4 +177,12 @@ int getFreeSpace(){
 
 int getPassengers(){
 	return currentPassengers;
+}
+
+int getTotalLevels(){
+	return totalLevels;
+}
+
+int getCurrentLevelRound(){
+	return (int) (currentLevel + 0.5);
 }
