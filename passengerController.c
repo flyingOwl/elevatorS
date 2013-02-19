@@ -68,10 +68,19 @@ int passengerLevel(int level, int direction){
 	count = 0;
 	for(i = 0; i < mWaiting && count < cNew; i++){
 		if(waiters[i] && waiters[i]->origin == level){
-			count++;
-			movePassengerInside(waiters[i]);
-			free(waiters[i]);
-			waiters[i] = 0;
+			//found passenger -> he's standing at opened elevator:
+			if((!direction || ((waiters[i]->destination - level) * direction) > 0 )){
+				//yes -> right direction:
+				count++;
+				movePassengerInside(waiters[i]);
+				free(waiters[i]);
+				waiters[i] = 0;
+
+			} else {
+				//no -> wrong direction:
+				callElevator(level);
+			}
+
 		}
 	}
 	//add to elevator:

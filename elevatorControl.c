@@ -36,8 +36,21 @@ int initElevator(int totalLs, int maxPs, int steps){
 	return 0;
 }
 
+int getDestinationCount(){
+	//returns the number of levels pressed on the "pressedLevels"-board
+	//inside the elevator
+	// if = 0 -> elevator "empty"
+	int i = totalLevels, temp = 0;
+	while(i--){
+		if(pressedLevels[i]){
+			temp++;
+		}
+	}
+	return temp;
+}
+
 int simulateStep(){
-	currentMovement = calcMovement();
+//	currentMovement = calcMovement();
 	currentLevel += (currentMovement * moveSpeed);
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
@@ -53,11 +66,14 @@ int simulateStep(){
 int callElevator(int fromLevel){
 	//add level to List of waiting-queue
 	calledLevels[fromLevel] = 1;
-	
+	currentMovement = calcMovement();
 	//when elevator not moving -> move directly to called level:
-	if(currentMovement == DIR_NONE){
+/*	if(currentMovement == DIR_NONE){
 		currentMovement = (currentLevel < fromLevel) ? DIR_UP : DIR_DOWN;
-	}
+		if(currentLevel == fromLevel){
+			reachLevel(fromLevel);
+		}
+	} */
 	return 0;
 }
 
@@ -109,10 +125,10 @@ int calcMovement(){
 			}
 		}
 		case 0: {
-			if(calledToLevels((int) currentLevel, DIR_UP)){
+			if(calledToLevels((int) currentLevel + DIR_UP, DIR_UP)){
 				return DIR_UP;
 			} else {
-				if(calledToLevels((int) currentLevel, DIR_DOWN)){
+				if(calledToLevels((int) currentLevel + DIR_DOWN, DIR_DOWN)){
 					return DIR_DOWN;
 				}
 			}
@@ -136,7 +152,11 @@ int openDoors(int atLevel){
 	pressedLevels[atLevel] = 0;
 	calledLevels[atLevel]  = 0;
 	//call passenger control -> add/remove them
+	if(!atLevel || atLevel == (totalLevels - 1) || !(getDestinationCount())){
+		currentMovement = 0;
+	}
 	passengerLevel(atLevel,currentMovement);
+	currentMovement = calcMovement();
 	return 0;
 }
 

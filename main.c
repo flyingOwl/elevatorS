@@ -1,7 +1,7 @@
 #include "simulator.h"
 
 int main(int argc, char ** argv){
-	mainLoop(10,5,1000,12,8,500);
+	mainLoop(15,5,1000,12,4,500);
 	return 0;
 }
 
