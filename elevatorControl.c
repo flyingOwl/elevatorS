@@ -55,7 +55,7 @@ int simulateStep(){
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
 		//reached a level...
-		if(reachLevel(cTemp) == 1){
+		if(reachLevel(cTemp)){
 			openDoors(cTemp);
 		}
 	}
@@ -75,7 +75,9 @@ int priorityPlus(){
 int callElevator(int fromLevel){
 	//add level to List of waiting-queue
 	calledLevels[fromLevel] = 1;
-	currentMovement = calcMovement();
+	if(!currentMovement){
+		currentMovement = calcMovement();
+	}
 	return 0;
 }
 
@@ -87,13 +89,16 @@ int pressLevelButton(int toLevel){
 
 int calledToLevels(int current, int direction){
 	//checks if there are called levels in given direction
-	int temp = 0;
 	for(; current >= 0 && current < totalLevels; current += direction){
 		if(calledLevels[current] || pressedLevels[current]){
-			temp = 1;
+			return 1;
 		}
 	}
-	return temp;
+	return 0;
+}
+
+int absDiff(int num1, int num2){
+	return (num1 > num2) ? (num1 - num2) : (num2 - num1);
 }
 
 int calcMovement(){
@@ -128,14 +133,14 @@ int calcMovement(){
 			}
 		}
 		case 0: {
-			if(calledToLevels((int) currentLevel + DIR_UP, DIR_UP)){
-				return DIR_UP;
-			} else {
-				if(calledToLevels((int) currentLevel + DIR_DOWN, DIR_DOWN)){
-					return DIR_DOWN;
+			//get closest level:
+			int temp = totalLevels, i = 0;
+			for(; i < totalLevels; i++){
+				if((pressedLevels[i] || calledLevels[i]) && (absDiff(currentLevel,i) < temp)){
+					temp = i;
 				}
 			}
-			return 0;
+			return (temp > currentLevel) ? DIR_UP : DIR_DOWN;			
 		}
 	}
 	return 0;
@@ -175,6 +180,9 @@ int openDoors(int atLevel){
 		currentMovement = 0;
 	}
 	passengerLevel(atLevel,currentMovement);
+	if(!currentPassengers){
+		currentMovement = 0;
+	}
 	currentMovement = calcMovement();
 	return 0;
 }
