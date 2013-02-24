@@ -8,7 +8,6 @@ int currentMovement;
 
 int * calledLevels;
 int * pressedLevels;
-int * priorityLevels;
 int totalLevels;
 
 int maxPassengers;
@@ -18,7 +17,6 @@ double moveSpeed;
 int initElevator(int totalLs, int maxPs, int steps){
 	calledLevels   = malloc(totalLs * sizeof(int));
 	pressedLevels  = malloc(totalLs * sizeof(int));
-	priorityLevels = malloc(totalLs * sizeof(int));
 	if(!calledLevels || !pressedLevels){
 		return 1;
 	}
@@ -26,7 +24,6 @@ int initElevator(int totalLs, int maxPs, int steps){
 	for(; i < totalLs; i++){
 		calledLevels[i]   = 0;
 		pressedLevels[i]  = 0;
-		priorityLevels[i] = 0;
 	}
 	totalLevels   = totalLs;
 	maxPassengers = maxPs;
@@ -36,18 +33,17 @@ int initElevator(int totalLs, int maxPs, int steps){
 	return 0;
 }
 
-int getDestinationCount(){
-	//returns the number of levels pressed on the "pressedLevels"-board
-	//inside the elevator
-	// if = 0 -> elevator "empty"
-	int i = totalLevels, temp = 0;
-	while(i--){
-		if(pressedLevels[i]){
-			temp++;
+int isIdle(){
+	//returs if elevator is called to any level
+	int i = -1;
+	while(++i < totalLevels){
+		if(pressedLevels[i] || calledLevels[i]){
+			return 0; //is not idle
 		}
 	}
-	return temp;
+	return 1; // is idle
 }
+
 
 int simulateStep(){
 //	currentMovement = calcMovement();
@@ -66,7 +62,10 @@ int priorityPlus(){
 	int i = 0;
 	for(; i < totalLevels; i++){
 		if(calledLevels[i]){
-			priorityLevels[i]++;
+			calledLevels[i]++;
+		}
+		if(pressedLevels[i]){
+			pressedLevels[i]++;
 		}
 	}
 	return 0;
@@ -76,14 +75,20 @@ int callElevator(int fromLevel){
 	//add level to List of waiting-queue
 	calledLevels[fromLevel] = 1;
 	if(!currentMovement){
-		currentMovement = calcMovement();
+		if(currentLevel == fromLevel){
+			openDoors(fromLevel);
+		} else {
+			currentMovement = calcMovement();
+		}
 	}
 	return 0;
 }
 
 int pressLevelButton(int toLevel){
 	//level-button inside elevator pressed, when passengers enter
-	pressedLevels[toLevel]++;
+	if(!pressedLevels[toLevel]){
+		pressedLevels[toLevel] = 1;
+	}
 	return 0;
 }
 
@@ -101,15 +106,27 @@ int absDiff(int num1, int num2){
 	return (num1 > num2) ? (num1 - num2) : (num2 - num1);
 }
 
+int isInteger(double num){
+	//return 1 -> is Integer or 0 -> not Integer
+	//TODO: Do some bitshifting here!!
+	return (num - ((int) num)  == 0);
+}
+
 int calcMovement(){
 	//calculate level to move to
 
 	//first dummy implementation:
 	int nextLevel;
 	priorityPlus();
+	if(!isInteger(currentLevel)){
+		return currentMovement;
+	}
+	//else -> isInteger
+	int cLevel = (int) currentLevel;
+
 	switch(currentMovement){
 		case DIR_UP: {
-			nextLevel = (int) (currentLevel + 1);
+			nextLevel = cLevel + 1;
 			if(calledToLevels(nextLevel,DIR_UP)){ 
 				return DIR_UP;
 			} else {
@@ -121,7 +138,7 @@ int calcMovement(){
 			}
 		}
 		case DIR_DOWN: {
-			nextLevel = (int) currentLevel;
+			nextLevel = cLevel - 1;
 			if(calledToLevels(nextLevel,DIR_DOWN)){ 
 				return DIR_DOWN;
 			} else {
@@ -133,7 +150,10 @@ int calcMovement(){
 			}
 		}
 		case 0: {
-			//get closest level:
+			//get closest level
+			if(!cLevel || cLevel == (totalLevels - 1)){
+				return (cLevel) ? DIR_DOWN : DIR_UP;
+			}
 			int temp = totalLevels, i = 0;
 			for(; i < totalLevels; i++){
 				if((pressedLevels[i] || calledLevels[i]) && (absDiff(currentLevel,i) < temp)){
@@ -151,18 +171,19 @@ int reachLevel(int atLevel){
 	if(atLevel < 0 || atLevel >= totalLevels){
 		return 1;
 	}
-	if(pressedLevels[atLevel]){
+	//somebody wants to leave, or elevator can't go on in current direction
+	if(pressedLevels[atLevel] || !atLevel || atLevel == (totalLevels - 1)){
 		return 0;
 	}
 	if(calledLevels[atLevel]){
 		//stop here, or does another level in this direction waits longer?
 		int i = atLevel + currentMovement, tMax = 0;
 		for(; i < totalLevels && i >= 0 && currentMovement; i += currentMovement){
-			if(priorityLevels[i] > tMax){
-				tMax = priorityLevels[i];
+			if(calledLevels[i] > tMax){
+				tMax = calledLevels[i];
 			}
 		}
-		if(tMax > priorityLevels[atLevel]){
+		if(tMax > calledLevels[atLevel]){
 			return 1;
 		} else {
 			return 0;
@@ -180,16 +201,16 @@ int openDoors(int atLevel){
 	}
 	pressedLevels[atLevel]  = 0;
 	calledLevels[atLevel]   = 0;
-	priorityLevels[atLevel] = 0;
 	//call passenger control -> add/remove them
-	if(!atLevel || atLevel == (totalLevels - 1) || !(getDestinationCount())){
+	if(!atLevel || atLevel == (totalLevels - 1) || isIdle()){
 		currentMovement = 0;
 	}
 	passengerLevel(atLevel,currentMovement);
-	if(!currentPassengers){
+	if(isIdle()){
 		currentMovement = 0;
+	} else {
+		currentMovement = calcMovement();
 	}
-	currentMovement = calcMovement();
 	return 0;
 }
 
