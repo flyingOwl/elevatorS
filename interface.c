@@ -39,11 +39,13 @@ int initInterface(){
 
 int printWaiters(){
 	const int yAxis = 5;
-	putCursor(yAxis, WAITING_SECTION);
 	int i = 1;
 	for(; i <= totalLevels; i++){
+		putCursor(i+yAxis-1,LEVEL_SECTION);
+		clearLine();
+		printf("Level %d:",(totalLevels - i));
+		putCursor(i+yAxis-1,WAITING_SECTION);
 		printf("%d",getWaitersAtLevel(totalLevels -i));
-		putCursor(i+yAxis,WAITING_SECTION);
 	}
 	return 0;
 }
@@ -62,6 +64,16 @@ int printElevator(){
 	}
 	return 0;
 }
+
+int printMovement(){
+	const int yAxis = 5 + totalLevels + 3;
+	double elevPos = getCurrentLevel();
+	int move = getMovement();
+	putCursor(yAxis, LEVEL_SECTION);
+	clearLine();
+	printf("Elevator moving (%d): %f",move,elevPos);
+	return 0;
+}
 		
 int interfaceLoop(int loopWait, int maxLevels){
 	int running = 1, updated = 0;
@@ -76,6 +88,8 @@ int interfaceLoop(int loopWait, int maxLevels){
 		printWaiters();
 
 		printElevator();
+
+		printMovement();
 
 		usleep(loopWait * 1000);
 	}

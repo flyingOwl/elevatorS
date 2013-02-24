@@ -22,17 +22,18 @@ int main(int argc, char ** argv){
 	pArgs[2] = 1000;  //malloc for waiters
 	pArgs[3] = 12;    //elevator size (maxPassengers)
 	pArgs[4] = 4;     //speed steps (1/x per second)
-	pArgs[5] = 500;   //Core loop pause time in ms
+	pArgs[5] = 10;   //Core loop pause time in ms
 	pthread_t pCore;
 	pthread_create(&pCore, NULL, startCoreLoop, pArgs);
 
 	int * pFac = malloc(sizeof(int) * 2);
-	pFac[0] = 500;    //loop pause time in ms
+	pFac[0] = 10;    //loop pause time in ms
 	pFac[1] = 8;      //house size (levels)
 	pthread_t pInterface;
 	pthread_create(&pInterface, NULL, startInterfaceLoop, pFac);
 	
 	pthread_join(pInterface,NULL);
+	//pthread_join(pCore,NULL);
 	stopSimulation();
 	return 0;
 }

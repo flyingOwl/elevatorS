@@ -13,6 +13,8 @@ int addPassengers(int nPassengers);
 int removePassengers(int nPassengers);
 int getFreeSpace();
 int getPassengers();
+double getCurrentLevel();
+int getMovement();
 
 //internal functions:
 int reachLevel(int atLevel);
@@ -20,3 +22,4 @@ int openDoors(int atLevel);
 int calcMovement();
 int getTotalLevels();
 int getCurrentLevelRound();
+

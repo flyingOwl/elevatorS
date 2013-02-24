@@ -55,7 +55,7 @@ int simulateStep(){
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
 		//reached a level...
-		if(reachLevel(cTemp)){
+		if(!reachLevel(cTemp)){
 			openDoors(cTemp);
 		}
 	}
@@ -148,8 +148,11 @@ int calcMovement(){
 
 int reachLevel(int atLevel){
 	//return: stop or not to stop
-	if(pressedLevels[atLevel]){
+	if(atLevel < 0 || atLevel >= totalLevels){
 		return 1;
+	}
+	if(pressedLevels[atLevel]){
+		return 0;
 	}
 	if(calledLevels[atLevel]){
 		//stop here, or does another level in this direction waits longer?
@@ -160,18 +163,21 @@ int reachLevel(int atLevel){
 			}
 		}
 		if(tMax > priorityLevels[atLevel]){
-			return 0;
-		} else {
 			return 1;
+		} else {
+			return 0;
 		}
 	} else {
 		//at this level, nobody gives a shit
-		return 0;
+		return 1;
 	}
 }
 
 int openDoors(int atLevel){
 	//reset all calls at/to this level
+	if(atLevel < 0 || atLevel >= totalLevels){
+		return 1;
+	}
 	pressedLevels[atLevel]  = 0;
 	calledLevels[atLevel]   = 0;
 	priorityLevels[atLevel] = 0;
@@ -216,4 +222,12 @@ int getTotalLevels(){
 
 int getCurrentLevelRound(){
 	return (int) (currentLevel + 0.5);
+}
+
+double getCurrentLevel(){
+	return currentLevel;
+}
+
+int getMovement(){
+	return currentMovement;
 }

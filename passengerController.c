@@ -34,6 +34,9 @@ int createNew(int fromFloor, int toFloor){
 	while(waiters[i]){
 		i++;
 	}
+	if(i >= mWaiting){
+		return 1;
+	}
 	waiters[i] = malloc(sizeof(struct passengerWaiting));
 	if(waiters[i]){
 		waiters[i]->origin = fromFloor;
@@ -69,11 +72,11 @@ int passengerLevel(int level, int direction){
 			//get in if elevator is standing there; moving in the right direction; is empty
 			if((!direction || ((waiters[i]->destination - level) * direction) > 0 ) || !getPassengers()){
 				//yes -> right direction:
-				count++;
-				movePassengerInside(waiters[i]);
-				free(waiters[i]);
-				waiters[i] = 0;
-
+				if(!movePassengerInside(waiters[i])){
+					count++;
+					free(waiters[i]);
+					waiters[i] = 0;
+				}
 			} else {
 				//no -> wrong direction:
 				callElevator(level);
@@ -92,6 +95,9 @@ int movePassengerInside(struct passengerWaiting * myPassenger){
 	int i = 0;
 	while(inSider[i]){
 		i++;
+	}
+	if(i >= mInside){
+		return 1;
 	}
 	inSider[i] = malloc(sizeof(struct passengerInside));
 	if(inSider[i]){
