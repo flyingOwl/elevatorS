@@ -33,11 +33,11 @@ int initElevator(int totalLs, int maxPs, int steps){
 	return 0;
 }
 
-int isIdle(){
+int isIdle(int justEmpty){
 	//returs if elevator is called to any level
 	int i = -1;
 	while(++i < totalLevels){
-		if(pressedLevels[i] || calledLevels[i]){
+		if(pressedLevels[i] || (calledLevels[i] && !justEmpty)){
 			return 0; //is not idle
 		}
 	}
@@ -108,7 +108,6 @@ int absDiff(int num1, int num2){
 
 int isInteger(double num){
 	//return 1 -> is Integer or 0 -> not Integer
-	//TODO: Do some bitshifting here!!
 	return (num - ((int) num)  == 0);
 }
 
@@ -168,6 +167,7 @@ int calcMovement(){
 
 int reachLevel(int atLevel){
 	//return: stop or not to stop
+	//TODO: remove this check (memcheck this section before!)
 	if(atLevel < 0 || atLevel >= totalLevels){
 		return 1;
 	}
@@ -177,6 +177,8 @@ int reachLevel(int atLevel){
 	}
 	if(calledLevels[atLevel]){
 		//stop here, or does another level in this direction waits longer?
+		//TODO: stop, when chance is high that passengers want the same direction
+		//(passengers from level 0 want normally up)
 		int i = atLevel + currentMovement, tMax = 0;
 		for(; i < totalLevels && i >= 0 && currentMovement; i += currentMovement){
 			if(calledLevels[i] > tMax){
@@ -202,11 +204,11 @@ int openDoors(int atLevel){
 	pressedLevels[atLevel]  = 0;
 	calledLevels[atLevel]   = 0;
 	//call passenger control -> add/remove them
-	if(!atLevel || atLevel == (totalLevels - 1) || isIdle()){
+	if(!atLevel || atLevel == (totalLevels - 1) || isIdle(1)){
 		currentMovement = 0;
 	}
 	passengerLevel(atLevel,currentMovement);
-	if(isIdle()){
+	if(isIdle(0)){
 		currentMovement = 0;
 	} else {
 		currentMovement = calcMovement();
