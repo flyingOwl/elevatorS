@@ -1,5 +1,6 @@
 #include "simulator.h"
 #include "interface.h"
+#include "inputLine.h"
 #include <pthread.h>
 #include <stdlib.h>
 
@@ -15,6 +16,11 @@ void * startCoreLoop(void *ptr){
 	return NULL;
 }
 
+void * startInputLoop(void * ptr){
+	inputLoop();
+	return NULL;
+}
+
 int main(int argc, char ** argv){	
 	int * pArgs = malloc(sizeof(int) * 6);
 	pArgs[0] = 15;		//every x steps -> new passenger
@@ -22,9 +28,12 @@ int main(int argc, char ** argv){
 	pArgs[2] = 1000;	//malloc for waiters
 	pArgs[3] = 12;		//elevator size (maxPassengers)
 	pArgs[4] = 4;		//speed steps (1/x per second)
-	pArgs[5] = 25;		//Core loop pause time in ms
+	pArgs[5] = 200;		//Core loop pause time in ms
 	pthread_t pCore;
 	pthread_create(&pCore, NULL, startCoreLoop, pArgs);
+	
+	pthread_t pInput;
+	pthread_create(&pInput, NULL, startInputLoop, NULL);
 
 	int * pFac = malloc(sizeof(int) * 2);
 	pFac[0] = pArgs[5];	//loop pause time in ms
@@ -32,9 +41,14 @@ int main(int argc, char ** argv){
 	pthread_t pInterface;
 	pthread_create(&pInterface, NULL, startInterfaceLoop, pFac);
 	
-	pthread_join(pInterface,NULL);
+	pthread_join(pInput,NULL);
 	//pthread_join(pCore,NULL);
+	
+	stopInterface();
+	pthread_join(pInterface,NULL);
+	
 	stopSimulation();
+	pthread_join(pCore,NULL);
 	return 0;
 }
 
