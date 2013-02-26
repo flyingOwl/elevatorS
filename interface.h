@@ -8,6 +8,6 @@
 
 int interfaceLoop(int loopWait, int maxLevels);
 int cleanInputLine();
-int outputLine(char * buffer);
+int outputLine(const char * buffer);
 int stopInterface();
 

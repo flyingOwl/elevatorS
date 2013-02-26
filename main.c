@@ -49,6 +49,8 @@ int main(int argc, char ** argv){
 	
 	stopSimulation();
 	pthread_join(pCore,NULL);
+	free(pArgs);
+	free(pFac);
 	return 0;
 }
 

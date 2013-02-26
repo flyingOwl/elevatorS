@@ -1,13 +1,19 @@
 #include "passenger.h"
 #include "elevator.h"
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 struct passengerInside **  inSider;
 int mInside;
 struct passengerWaiting ** waiters;
 int mWaiting;
 
-int initPassengers(int maxWaiters, int maxPassengers){
+int totalLevels;
+
+int initPassengers(int maxWaiters, int maxPassengers, int maxLevels){
+	totalLevels = maxLevels;
+	srand(time(NULL)); // for createRandom
 	inSider = malloc(maxPassengers * sizeof(struct passengerInside *));
 	waiters = malloc(maxWaiters * sizeof(struct passengerWaiting *));
 	mInside = maxPassengers;
@@ -35,9 +41,21 @@ int getWaitersAtLevel(int level){
 	return temp;
 }
 
+int createRandom(int nTimes){
+	int or, de;
+	while(nTimes--){
+		or = rand() % totalLevels;
+		do {
+			de = rand() % totalLevels;
+		} while(de == or);
+		createNew(or,de);
+	}
+	return 0;
+}
+
 int createNew(int fromFloor, int toFloor){
 	//find free "slot"
-	if(fromFloor == toFloor){
+	if(fromFloor == toFloor || fromFloor < 0 || toFloor < 0 || fromFloor >= totalLevels || toFloor >= totalLevels){
 		return 1;
 	}
 	int i = 0;

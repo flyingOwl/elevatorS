@@ -148,7 +148,7 @@ int cleanInputLine(){
 	return 0;
 }
 
-int outputLine(char * buffer){
+int outputLine(const char * buffer){
 	if(outBuffer){
 		outBuffer = strncpy(outBuffer,buffer,BUFFER_SIZE);
 	}

@@ -4,6 +4,7 @@
 #include "inputLine.h"
 #include "interface.h"
 #include "passenger.h"
+#include "helptexts.h"
 
 int rInput;
 
@@ -44,22 +45,24 @@ int inputLoop(){
 		cleanInputLine();
 		char * line = readLine(buffer,BUFFER_SIZE);
 		if(line){
-			//TODO: Create headerfile with help texts
-
 			//Analyse and do something with this line...
 			if(!strcmp(line,"help")){
-				outputLine("Commands: 'new' 'quit'   Call 'help <command>' for more information");
+				outputLine(HELP_MAIN);
 				continue;
 			}
 			if(!strncmp(line,"help",4)){
 				//something was called with help
 				line += 5;
 				if(!strcmp(line,"new")){
-			outputLine("new A B (C): Creates 1 or C (if given) new passenger(s) from level A to B. Example: \"new 0 2\" \"new 2 4 5\"");
+					outputLine(HELP_NEW);
 					continue;
 				}
 				if(!strcmp(line,"quit")){
-					outputLine("quit: Stops simulation and quits.");
+					outputLine(HELP_QUIT);
+					continue;
+				}
+				if(!strcmp(line,"rnew")){
+					outputLine(HELP_RNEW);
 					continue;
 				}
 				// ... more help
@@ -68,20 +71,19 @@ int inputLoop(){
 			// NEW PASSENGER
 			if(!strncmp(line,"new",3)){
 				line += 4;
-				int a, b, c;
-				switch(sscanf(line,"%d %d %d",&a,&b,&c)){
-					case 2: {
-						createNew(a,b);
-						break;
-					}
-					case 3: {
-						while(c--){
-							createNew(a,b);
-						}
-						break;
-					}
+				int a, b, c = 1;
+				sscanf(line,"%d %d %d",&a,&b,&c);
+				while(c--){
+					createNew(a,b);
 				}
 				continue;
+			}
+			//NEW RANDOM PASSENGER:
+			if(!strncmp(line,"rnew",4)){
+				line += 5;
+				int a = 1;
+				sscanf(line,"%d",&a);
+				createRandom(a);
 			}
 			// QUIT
 			if(!strcmp(line,"quit")){
