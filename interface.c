@@ -32,7 +32,7 @@ int lineDown(){
 }
 
 int printOutputLine(){
-	putCursor(LINE_OUT,0);
+	putCursor(LINE_OUT + totalLevels,0);
 	clearLine();
 	if(outBuffer){
 		printf("%s", outBuffer);
@@ -41,10 +41,10 @@ int printOutputLine(){
 }
 
 int initInput(){
-	putCursor(LINE_IN,0);
+	putCursor(LINE_IN + totalLevels,0);
 	clearLine();
 	putchar('>');
-	putCursor(LINE_IN,3);
+	putCursor(LINE_IN + totalLevels,3);
 	return 0;
 }
 
@@ -90,7 +90,7 @@ int printElevator(){
 }
 
 int printMovement(){
-	const int yAxis = 5 + totalLevels + 3;
+	const int yAxis = 5 + totalLevels;
 	double elevPos = getCurrentLevel();
 	int move = getMovement();
 	putCursor(yAxis, LEVEL_SECTION);

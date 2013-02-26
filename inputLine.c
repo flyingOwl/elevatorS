@@ -44,6 +44,8 @@ int inputLoop(){
 		cleanInputLine();
 		char * line = readLine(buffer,BUFFER_SIZE);
 		if(line){
+			//TODO: Create headerfile with help texts
+
 			//Analyse and do something with this line...
 			if(!strcmp(line,"help")){
 				outputLine("Commands: 'new' 'quit'   Call 'help <command>' for more information");
@@ -53,7 +55,7 @@ int inputLoop(){
 				//something was called with help
 				line += 5;
 				if(!strcmp(line,"new")){
-					outputLine("new A B: Creates a new passenger from level A to B. Example: new 0 2");
+			outputLine("new A B (C): Creates 1 or C (if given) new passenger(s) from level A to B. Example: \"new 0 2\" \"new 2 4 5\"");
 					continue;
 				}
 				if(!strcmp(line,"quit")){
@@ -66,9 +68,18 @@ int inputLoop(){
 			// NEW PASSENGER
 			if(!strncmp(line,"new",3)){
 				line += 4;
-				int a, b;
-				if(sscanf(line,"%d %d",&a,&b) == 2){
-					createNew(a,b);
+				int a, b, c;
+				switch(sscanf(line,"%d %d %d",&a,&b,&c)){
+					case 2: {
+						createNew(a,b);
+						break;
+					}
+					case 3: {
+						while(c--){
+							createNew(a,b);
+						}
+						break;
+					}
 				}
 				continue;
 			}

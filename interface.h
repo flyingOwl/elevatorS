@@ -3,8 +3,8 @@
 #define ELEVATOR_SECTION 19
 #define MOVE_SECTION 25
 
-#define LINE_IN 2
-#define LINE_OUT 3
+#define LINE_IN 8
+#define LINE_OUT 7
 
 int interfaceLoop(int loopWait, int maxLevels);
 int cleanInputLine();

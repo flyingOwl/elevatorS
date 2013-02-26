@@ -47,6 +47,9 @@ int isIdle(int justEmpty){
 
 int simulateStep(){
 //	currentMovement = calcMovement();
+//	if(!isIdle()){
+	//	currentMovement = calcMovement();
+//	}
 	currentLevel += (currentMovement * moveSpeed);
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
@@ -74,12 +77,12 @@ int priorityPlus(){
 int callElevator(int fromLevel){
 	//add level to List of waiting-queue
 	calledLevels[fromLevel] = 1;
-	if(!currentMovement){
-		if(currentLevel == fromLevel){
-			openDoors(fromLevel);
-		} else {
+	if(isIdle(1)){
+	//	if(currentLevel == fromLevel){
+	//		openDoors(fromLevel);
+	//	} else {
 			currentMovement = calcMovement();
-		}
+	//	}
 	}
 	return 0;
 }
@@ -150,16 +153,30 @@ int calcMovement(){
 		}
 		case 0: {
 			//get closest level
-			if(!cLevel || cLevel == (totalLevels - 1)){
-				return (cLevel) ? DIR_DOWN : DIR_UP;
-			}
-			int temp = totalLevels, i = 0;
-			for(; i < totalLevels; i++){
-				if((pressedLevels[i] || calledLevels[i]) && (absDiff(currentLevel,i) < temp)){
-					temp = i;
+			int temp = totalLevels, i = 0, closest = currentLevel;
+			if(isIdle(1)){ //nobody inside... -> get closest call:
+				for(; i < totalLevels; i++){
+					if(calledLevels[i] && absDiff(currentLevel,i) < temp){
+						if(currentLevel == i){
+							return DIR_NONE;
+						}
+						temp = absDiff(currentLevel,i);
+						closest = i;
+					}
 				}
+				return (closest < currentLevel) ? DIR_DOWN : DIR_UP;
+			} else {
+				for(; i < totalLevels; i++){
+					if(pressedLevels[i] && absDiff(currentLevel,i) < temp){
+						if(currentLevel == i){
+							return DIR_NONE;
+						}
+						temp = absDiff(currentLevel,i);
+						closest = i;
+					}
+				}
+				return (closest < currentLevel) ? DIR_DOWN : DIR_UP;
 			}
-			return (temp > currentLevel) ? DIR_UP : DIR_DOWN;			
 		}
 	}
 	return 0;

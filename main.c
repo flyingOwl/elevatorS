@@ -23,7 +23,7 @@ void * startInputLoop(void * ptr){
 
 int main(int argc, char ** argv){	
 	int * pArgs = malloc(sizeof(int) * 6);
-	pArgs[0] = 15;		//every x steps -> new passenger
+	pArgs[0] = 1000;	//every x steps -> new passenger
 	pArgs[1] = 8;		//house size (levels)
 	pArgs[2] = 1000;	//malloc for waiters
 	pArgs[3] = 12;		//elevator size (maxPassengers)

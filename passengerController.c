@@ -25,6 +25,16 @@ int initPassengers(int maxWaiters, int maxPassengers){
 	return 0;
 }
 
+int getWaitersAtLevel(int level){
+	int temp = 0, i = 0;
+	for(; i < mWaiting; i++){
+		if(waiters[i] && waiters[i]->origin == level){
+			temp++;
+		}
+	}
+	return temp;
+}
+
 int createNew(int fromFloor, int toFloor){
 	//find free "slot"
 	if(fromFloor == toFloor){
@@ -88,6 +98,9 @@ int passengerLevel(int level, int direction){
 	if(addPassengers(count)){
 		//elevator is FULL ... wait what??
 	}
+	if(getWaitersAtLevel(level)){
+		callElevator(level);
+	}
 	return 0;
 }
 
@@ -108,12 +121,3 @@ int movePassengerInside(struct passengerWaiting * myPassenger){
 	return 1;
 }
 
-int getWaitersAtLevel(int level){
-	int temp = 0, i = 0;
-	for(; i < mWaiting; i++){
-		if(waiters[i] && waiters[i]->origin == level){
-			temp++;
-		}
-	}
-	return temp;
-}
