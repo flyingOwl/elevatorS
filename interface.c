@@ -63,15 +63,18 @@ int initInterface(){
 
 int printWaiters(){
 	const int yAxis = 5;
-	int i = 1;
+	int i = 1, fullstop = getFullStopLevel();
 	for(; i <= totalLevels; i++){
 		putCursor(i+yAxis-1,LEVEL_SECTION);
 		clearLine();
 		printf("Level %d:",(totalLevels - i));
+		if((totalLevels - i) == fullstop){
+			putchar('*');
+		}
 		putCursor(i+yAxis-1,WAITING_SECTION);
 		printf("%d",getWaitersAtLevel(totalLevels - i));
-		putCursor(i+yAxis-1,PRIORITY_SECTION);
-		printf("%d",getPriorityAtLevel(totalLevels - i));
+//		putCursor(i+yAxis-1,PRIORITY_SECTION);
+//		printf("%d",getPriorityAtLevel(totalLevels - i));
 	}
 	return 0;
 }

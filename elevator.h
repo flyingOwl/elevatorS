@@ -23,3 +23,4 @@ int calcMovement();
 int getTotalLevels();
 int getCurrentLevelRound();
 int getPriorityAtLevel(int level);
+int getFullStopLevel();

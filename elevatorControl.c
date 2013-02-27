@@ -3,9 +3,9 @@
 #include "passenger.h"
 
 double currentLevel; //double, -> 1/2 level
-//int destinationLevel;
 int currentMovement;
 int keepDirection;
+int fullStopLevel;
 
 int * calledLevels;
 int * pressedLevels;
@@ -31,8 +31,14 @@ int initElevator(int totalLs, int maxPs, int steps){
 	currentPassengers = 0;
 	currentMovement   = 0;
 	keepDirection = 0;
+	fullStopLevel = -1;
 	moveSpeed = 1 / (double) steps;
 	return 0;
+}
+
+int isInteger(double num){
+	//return 1 -> is Integer or 0 -> not Integer
+	return (num - ((int) num)  == 0);
 }
 
 int isIdle(int justEmpty){
@@ -61,9 +67,8 @@ int priorityPlus(){
 
 int simulateStep(){
 	currentLevel += (currentMovement * moveSpeed);
-//	priorityPlus();
 	int cTemp = (int) currentLevel;
-	if(cTemp == currentLevel){
+	if(isInteger(currentLevel)){
 		//reached a level...
 		if(!reachLevel(cTemp)){
 			openDoors(cTemp);
@@ -104,11 +109,6 @@ int absDiff(int num1, int num2){
 	return (num1 > num2) ? (num1 - num2) : (num2 - num1);
 }
 
-int isInteger(double num){
-	//return 1 -> is Integer or 0 -> not Integer
-	return (num - ((int) num)  == 0);
-}
-
 int calcMovement(){
 	//calculate level to move to
 
@@ -128,34 +128,23 @@ int calcMovement(){
 	int cLevel = (int) currentLevel;
 
 	switch(currentMovement){
-		case DIR_UP: {
-			nextLevel = cLevel + 1;
-			if(calledToLevels(nextLevel,DIR_UP)){ 
-				return DIR_UP;
-			} else {
-				if(calledToLevels(nextLevel,DIR_DOWN)){ 
-					return DIR_DOWN;
-				} else {
-					return DIR_NONE;
-				}
-			}
-		}
+		case DIR_UP:  //fall through...
 		case DIR_DOWN: {
-			nextLevel = cLevel - 1;
-			if(calledToLevels(nextLevel,DIR_DOWN)){ 
-				return DIR_DOWN;
+			nextLevel = cLevel + currentMovement;
+			if(calledToLevels(nextLevel,currentMovement)){
+				return currentMovement;
 			} else {
-				if(calledToLevels(nextLevel,DIR_UP)){ 
-					return DIR_UP;
+				if(calledToLevels(nextLevel, -1 * currentMovement)){
+					return (-1 * currentMovement);
 				} else {
 					return DIR_NONE;
 				}
 			}
+			break;
 		}
 		case 0: {
 			//get closest level
 			int empty = isIdle(1), tWhile = 0, diff = 1, temp;
-
 			while(tWhile != 2){
 				tWhile = 0;	
 				do{
@@ -185,26 +174,33 @@ int reachLevel(int atLevel){
 	}
 	if(calledLevels[atLevel]){
 		//stop here, or does another level in this direction waits longer?
-		//TODO: stop, when chance is high that passengers want the same direction
-		//(passengers from level 0 want normally up)
-
 		//Behavior depends on emptyness:
 		int empty = isIdle(1);
 		if(empty){
-			int i = atLevel + currentMovement, tMax = 0;
+			//get Level with max priority in current direction:
+			int i = atLevel, mPriority = 0, mLevel = atLevel;
 			for(; i < totalLevels && i >= 0 && currentMovement; i += currentMovement){
-				if(calledLevels[i] > tMax){
-					tMax = calledLevels[i];
+				if(calledLevels[i] > mPriority){
+					mPriority = calledLevels[i];
+					mLevel    = i;
 				}
 			}
-			if(tMax > calledLevels[atLevel]){
-				return 1;
+			//when atLevel is just one level from the max-priority-level -> then stop
+			//(but keep direction)
+			if(mLevel == atLevel){
+				return 0;
 			} else {
+	//		if(absDiff(mLevel,atLevel) < 3 && currentMovement){
+				keepDirection = currentMovement;
+				fullStopLevel = mLevel;
 				return 0;
 			}
+			return 1;
 		} else {
 			//stop, but keep direction:
-			keepDirection = currentMovement;
+			if(currentMovement && calledToLevels(atLevel + currentMovement,currentMovement)){
+				keepDirection = currentMovement;
+			}
 			return 0;
 		}
 	} else {
@@ -222,6 +218,10 @@ int openDoors(int atLevel){
 	calledLevels[atLevel]   = 0;
 	//call passenger control -> add/remove them
 	if(!atLevel || atLevel == (totalLevels - 1) || isIdle(1)){
+		currentMovement = 0;
+	}
+	if(fullStopLevel == atLevel){
+		fullStopLevel = -1;
 		currentMovement = 0;
 	}
 	passengerLevel(atLevel,currentMovement);
@@ -270,6 +270,10 @@ double getCurrentLevel(){
 
 int getMovement(){
 	return currentMovement;
+}
+
+int getFullStopLevel(){
+	return fullStopLevel;
 }
 
 int getPriorityAtLevel(int level){
