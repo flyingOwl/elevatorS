@@ -22,4 +22,4 @@ int openDoors(int atLevel);
 int calcMovement();
 int getTotalLevels();
 int getCurrentLevelRound();
-
+int getPriorityAtLevel(int level);

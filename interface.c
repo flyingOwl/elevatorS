@@ -69,7 +69,9 @@ int printWaiters(){
 		clearLine();
 		printf("Level %d:",(totalLevels - i));
 		putCursor(i+yAxis-1,WAITING_SECTION);
-		printf("%d",getWaitersAtLevel(totalLevels -i));
+		printf("%d",getWaitersAtLevel(totalLevels - i));
+		putCursor(i+yAxis-1,PRIORITY_SECTION);
+		printf("%d",getPriorityAtLevel(totalLevels - i));
 	}
 	return 0;
 }

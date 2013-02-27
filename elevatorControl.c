@@ -46,19 +46,6 @@ int isIdle(int justEmpty){
 	return 1; // is idle
 }
 
-
-int simulateStep(){
-	currentLevel += (currentMovement * moveSpeed);
-	int cTemp = (int) currentLevel;
-	if(cTemp == currentLevel){
-		//reached a level...
-		if(!reachLevel(cTemp)){
-			openDoors(cTemp);
-		}
-	}
-	return 0;
-}
-
 int priorityPlus(){
 	int i = 0;
 	for(; i < totalLevels; i++){
@@ -71,6 +58,20 @@ int priorityPlus(){
 	}
 	return 0;
 }
+
+int simulateStep(){
+	currentLevel += (currentMovement * moveSpeed);
+//	priorityPlus();
+	int cTemp = (int) currentLevel;
+	if(cTemp == currentLevel){
+		//reached a level...
+		if(!reachLevel(cTemp)){
+			openDoors(cTemp);
+		}
+	}
+	return 0;
+}
+
 
 int callElevator(int fromLevel){
 	//add level to List of waiting-queue
@@ -269,4 +270,12 @@ double getCurrentLevel(){
 
 int getMovement(){
 	return currentMovement;
+}
+
+int getPriorityAtLevel(int level){
+	if(level >= 0 && level < totalLevels){
+		return calledLevels[level];
+	} else {
+		return -1;
+	}
 }
