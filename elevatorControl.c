@@ -3,8 +3,9 @@
 #include "passenger.h"
 
 double currentLevel; //double, -> 1/2 level
-int destinationLevel;
+//int destinationLevel;
 int currentMovement;
+int keepDirection;
 
 int * calledLevels;
 int * pressedLevels;
@@ -29,6 +30,7 @@ int initElevator(int totalLs, int maxPs, int steps){
 	maxPassengers = maxPs;
 	currentPassengers = 0;
 	currentMovement   = 0;
+	keepDirection = 0;
 	moveSpeed = 1 / (double) steps;
 	return 0;
 }
@@ -46,10 +48,6 @@ int isIdle(int justEmpty){
 
 
 int simulateStep(){
-//	currentMovement = calcMovement();
-//	if(!isIdle()){
-	//	currentMovement = calcMovement();
-//	}
 	currentLevel += (currentMovement * moveSpeed);
 	int cTemp = (int) currentLevel;
 	if(cTemp == currentLevel){
@@ -78,11 +76,7 @@ int callElevator(int fromLevel){
 	//add level to List of waiting-queue
 	calledLevels[fromLevel] = 1;
 	if(isIdle(1)){
-	//	if(currentLevel == fromLevel){
-	//		openDoors(fromLevel);
-	//	} else {
-			currentMovement = calcMovement();
-	//	}
+		currentMovement = calcMovement();
 	}
 	return 0;
 }
@@ -124,6 +118,12 @@ int calcMovement(){
 		return currentMovement;
 	}
 	//else -> isInteger
+	if(keepDirection){
+		nextLevel = keepDirection;
+		keepDirection = 0;
+		return nextLevel;
+	}
+		
 	int cLevel = (int) currentLevel;
 
 	switch(currentMovement){
@@ -153,30 +153,24 @@ int calcMovement(){
 		}
 		case 0: {
 			//get closest level
-			int temp = totalLevels, i = 0, closest = currentLevel;
-			if(isIdle(1)){ //nobody inside... -> get closest call:
-				for(; i < totalLevels; i++){
-					if(calledLevels[i] && absDiff(currentLevel,i) < temp){
-						if(currentLevel == i){
-							return DIR_NONE;
+			int empty = isIdle(1), tWhile = 0, diff = 1, temp;
+
+			while(tWhile != 2){
+				tWhile = 0;	
+				do{
+					temp = currentLevel + diff;
+					if(temp < 0 || temp > (totalLevels - 1)){
+						tWhile++;
+					} else {
+						if((calledLevels[temp] && empty) || (pressedLevels[temp] && !empty)){
+							return (diff > 0) ? DIR_UP : DIR_DOWN;
 						}
-						temp = absDiff(currentLevel,i);
-						closest = i;
 					}
-				}
-				return (closest < currentLevel) ? DIR_DOWN : DIR_UP;
-			} else {
-				for(; i < totalLevels; i++){
-					if(pressedLevels[i] && absDiff(currentLevel,i) < temp){
-						if(currentLevel == i){
-							return DIR_NONE;
-						}
-						temp = absDiff(currentLevel,i);
-						closest = i;
-					}
-				}
-				return (closest < currentLevel) ? DIR_DOWN : DIR_UP;
+					diff *= -1;
+				} while (diff < 0);
+				diff++;
 			}
+			return DIR_NONE;
 		}
 	}
 	return 0;
@@ -184,10 +178,6 @@ int calcMovement(){
 
 int reachLevel(int atLevel){
 	//return: stop or not to stop
-	//TODO: remove this check (memcheck this section before!)
-	if(atLevel < 0 || atLevel >= totalLevels){
-		return 1;
-	}
 	//somebody wants to leave, or elevator can't go on in current direction
 	if(pressedLevels[atLevel] || !atLevel || atLevel == (totalLevels - 1)){
 		return 0;
@@ -196,15 +186,24 @@ int reachLevel(int atLevel){
 		//stop here, or does another level in this direction waits longer?
 		//TODO: stop, when chance is high that passengers want the same direction
 		//(passengers from level 0 want normally up)
-		int i = atLevel + currentMovement, tMax = 0;
-		for(; i < totalLevels && i >= 0 && currentMovement; i += currentMovement){
-			if(calledLevels[i] > tMax){
-				tMax = calledLevels[i];
+
+		//Behavior depends on emptyness:
+		int empty = isIdle(1);
+		if(empty){
+			int i = atLevel + currentMovement, tMax = 0;
+			for(; i < totalLevels && i >= 0 && currentMovement; i += currentMovement){
+				if(calledLevels[i] > tMax){
+					tMax = calledLevels[i];
+				}
 			}
-		}
-		if(tMax > calledLevels[atLevel]){
-			return 1;
+			if(tMax > calledLevels[atLevel]){
+				return 1;
+			} else {
+				return 0;
+			}
 		} else {
+			//stop, but keep direction:
+			keepDirection = currentMovement;
 			return 0;
 		}
 	} else {
