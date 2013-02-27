@@ -7,21 +7,21 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-int running = 1;
+int running = 1, autoNew = 1;
 const int microToMilli = 1000;
 
 int mainLoop(int passengerThreshold, int maxLevels, int maxWaiters, int maxPassengers, int elevatorSteps,int sleepMS){
 
-	int newPassenger = 0;
+	int newPassenger = 1;
 	initElevator(maxLevels, maxPassengers, elevatorSteps);
 	initPassengers(maxWaiters, maxPassengers, maxLevels);
 
 	while(running){
 		simulateStep();
-		newPassenger++;
-		if(newPassenger >= passengerThreshold){
+		newPassenger += (autoNew) ? 1 : 0;
+		if(newPassenger > passengerThreshold){
 			createRandom(1);
-			newPassenger = 0;
+			newPassenger = 1;
 		}
 		usleep(sleepMS * microToMilli);
 	}
@@ -30,5 +30,10 @@ int mainLoop(int passengerThreshold, int maxLevels, int maxWaiters, int maxPasse
 
 int stopSimulation(){
 	running = 0;
+	return 0;
+}
+
+int toggleAutonew(int setOn){
+	autoNew = setOn;
 	return 0;
 }

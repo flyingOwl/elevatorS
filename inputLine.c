@@ -5,6 +5,7 @@
 #include "interface.h"
 #include "passenger.h"
 #include "helptexts.h"
+#include "simulator.h"
 
 int rInput;
 
@@ -55,15 +56,15 @@ int inputLoop(){
 				line += 5;
 				if(!strcmp(line,"new")){
 					outputLine(HELP_NEW);
-					continue;
 				}
 				if(!strcmp(line,"quit")){
 					outputLine(HELP_QUIT);
-					continue;
 				}
 				if(!strcmp(line,"rnew")){
 					outputLine(HELP_RNEW);
-					continue;
+				}
+				if(!strcmp(line,"autonew")){
+					outputLine(HELP_AUTONEW);
 				}
 				// ... more help
 				continue;
@@ -84,6 +85,15 @@ int inputLoop(){
 				int a = 1;
 				sscanf(line,"%d",&a);
 				createRandom(a);
+			}
+			if(!strncmp(line,"autonew",7)){
+				line += 8;
+				if(!strcmp(line,"on") || !strcmp(line,"off")){
+					toggleAutonew(*(line+1) == 'n');
+				} else {
+					outputLine(HELP_AUTONEW);
+				}
+				continue;
 			}
 			// QUIT
 			if(!strcmp(line,"quit")){
