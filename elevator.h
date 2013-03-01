@@ -5,7 +5,7 @@
 #define MAX_PASSENGERS 12
 #define MAX_CONTROLLER_LIST 1000
 
-int initElevator(int totalLs, int maxPs, int steps);
+int initElevator(int totalLs, int maxPs, int steps, int doorTime);
 int simulateStep();
 int callElevator(int fromLevel);
 int pressLevelButton(int toLevel);
@@ -15,6 +15,7 @@ int getFreeSpace();
 int getPassengers();
 double getCurrentLevel();
 int getMovement();
+int openAtLevel();
 
 //internal functions:
 int reachLevel(int atLevel);

@@ -82,10 +82,15 @@ int printWaiters(){
 int printElevator(){
 	const int yAxis = 5;
 	int elevPos = getCurrentLevelRound(), nPassen = getPassengers(), i = 1;
+	int doors = openAtLevel();
 	putCursor(yAxis, ELEVATOR_SECTION);
 	for(; i <= totalLevels; i++){
 		if(elevPos == (totalLevels - i)){
-			printf("[%2d]",nPassen);
+			if(doors == (totalLevels - i)){
+				printf("_%2d_",nPassen);
+			} else {
+				printf("[%2d]",nPassen);
+			}
 		} else {
 			printf("     ");
 		}

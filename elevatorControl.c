@@ -7,6 +7,9 @@ int currentMovement;
 int keepDirection;
 int fullStopLevel;
 
+int doorDelay;
+int doorsOpen;
+
 int * calledLevels;
 int * pressedLevels;
 int totalLevels;
@@ -15,7 +18,10 @@ int maxPassengers;
 int currentPassengers;
 double moveSpeed;
 
-int initElevator(int totalLs, int maxPs, int steps){
+/* PROTOTYPES */
+int closeDoors();
+
+int initElevator(int totalLs, int maxPs, int steps, int doorTime){
 	calledLevels   = malloc(totalLs * sizeof(int));
 	pressedLevels  = malloc(totalLs * sizeof(int));
 	if(!calledLevels || !pressedLevels){
@@ -32,6 +38,8 @@ int initElevator(int totalLs, int maxPs, int steps){
 	currentMovement   = 0;
 	keepDirection = 0;
 	fullStopLevel = -1;
+	doorDelay = doorTime;
+	doorsOpen = 0;
 	moveSpeed = 1 / (double) steps;
 	return 0;
 }
@@ -66,12 +74,19 @@ int priorityPlus(){
 }
 
 int simulateStep(){
-	currentLevel += (currentMovement * moveSpeed);
-	int cTemp = (int) currentLevel;
-	if(isInteger(currentLevel)){
-		//reached a level...
-		if(!reachLevel(cTemp)){
-			openDoors(cTemp);
+	if(doorsOpen){
+		doorsOpen--;
+		if(!doorsOpen){
+			closeDoors();
+		}
+	} else {
+		currentLevel += (currentMovement * moveSpeed);
+		int cTemp = (int) currentLevel;
+		if(isInteger(currentLevel)){
+			//reached a level...
+			if(!reachLevel(cTemp)){
+				openDoors(cTemp);
+			}
 		}
 	}
 	return 0;
@@ -169,6 +184,9 @@ int calcMovement(){
 int reachLevel(int atLevel){
 	//return: stop or not to stop
 	//somebody wants to leave, or elevator can't go on in current direction
+	if(isIdle(0)){
+		return 1; //prevents initial door-opening at simulation startup
+	}
 	if(pressedLevels[atLevel] || !atLevel || atLevel == (totalLevels - 1)){
 		return 0;
 	}
@@ -214,6 +232,8 @@ int openDoors(int atLevel){
 	if(atLevel < 0 || atLevel >= totalLevels){
 		return 1;
 	}
+	doorsOpen = doorDelay;
+	
 	pressedLevels[atLevel]  = 0;
 	calledLevels[atLevel]   = 0;
 	//call passenger control -> add/remove them
@@ -225,6 +245,10 @@ int openDoors(int atLevel){
 		currentMovement = 0;
 	}
 	passengerLevel(atLevel,currentMovement);
+	return 0;
+}
+
+int closeDoors(){
 	if(isIdle(0)){
 		currentMovement = 0;
 	} else {
@@ -232,6 +256,7 @@ int openDoors(int atLevel){
 	}
 	return 0;
 }
+	
 
 int addPassengers(int nPassengers){
 	if(currentPassengers + nPassengers > maxPassengers){
@@ -279,6 +304,14 @@ int getFullStopLevel(){
 int getPriorityAtLevel(int level){
 	if(level >= 0 && level < totalLevels){
 		return calledLevels[level];
+	} else {
+		return -1;
+	}
+}
+
+int openAtLevel(){
+	if(doorsOpen){
+		return (int) currentLevel;
 	} else {
 		return -1;
 	}

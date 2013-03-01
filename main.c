@@ -17,13 +17,17 @@ void *startInterfaceLoop(void *ptr){
 
 void * startCoreLoop(void *ptr){
 	int * arg = (int *) ptr;
-	mainLoop(arg[0],arg[1],arg[2],arg[3],arg[4],arg[5]);
+	mainLoop(arg[0],arg[1],arg[2],arg[3],arg[4],arg[5],arg[6]);
 	return NULL;
 }
 
 void * startInputLoop(void * ptr){
 	inputLoop();
 	return NULL;
+}
+
+int isPowerOfTwo (int x){
+	  return ((x != 0) && !(x & (x - 1)));
 }
 
 int main(int argc, char ** argv){
@@ -33,6 +37,7 @@ int main(int argc, char ** argv){
 	int elevatorCapacity = 12;
 	int elevatorSteps = 4; // 1/n level per second
 	int loopTime = 200; //ms
+	int doorTime = 10; //delay in steps -> door open
 
 	//parsing commandline arguments:
 	int i = 1, hasNext;
@@ -85,18 +90,42 @@ int main(int argc, char ** argv){
 			continue;
 		}
 
+		//--speed
+		if(!strcmp(argv[i],"--speed")){
+			if(hasNext){
+				int nSpeed;
+				if(sscanf(argv[i+1],"%d",&nSpeed)){
+					if(nSpeed > 0 && isPowerOfTwo(nSpeed)){
+						elevatorSteps = nSpeed;
+						i++;
+					} else {
+						//invalid value:
+						puts(OPTION_SPEED_WRONG_VALUE);
+						return 2;
+					}
+				} else {
+					printf(OPTION_NEED_NUMBER,"speed");
+					return 2;
+				}
+			} else {
+				printf(OPTION_NEED_VALUE,"capacity");
+				return 2;
+			}
+			continue;
+		}
+
 		printf(OPTION_UNKNOWN,argv[i]);
 		return 3;
-		
 	}
 
-	int * pArgs = malloc(sizeof(int) * 6);
+	int * pArgs = malloc(sizeof(int) * 7);
 	pArgs[0] = passengerThreshold;	//every x steps -> new passenger
 	pArgs[1] = houseSize;		//house size (levels)
 	pArgs[2] = maxWaiters;		//malloc for waiters
 	pArgs[3] = elevatorCapacity;	//elevator size (maxPassengers)
 	pArgs[4] = elevatorSteps;	//speed steps (1/x per second)
 	pArgs[5] = loopTime;		//Core loop pause time in ms
+	pArgs[6] = doorTime;
 	pthread_t pCore;
 	pthread_create(&pCore, NULL, startCoreLoop, pArgs);
 	

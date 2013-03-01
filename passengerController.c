@@ -69,7 +69,11 @@ int createNew(int fromFloor, int toFloor){
 	if(waiters[i]){
 		waiters[i]->origin = fromFloor;
 		waiters[i]->destination = toFloor;
-		callElevator(fromFloor);
+		if(openAtLevel() == fromFloor){
+			passengerLevel(fromFloor,getMovement());
+		} else {
+			callElevator(fromFloor);
+		}
 		return 0;
 	}
 	return 1;

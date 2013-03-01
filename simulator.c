@@ -10,10 +10,10 @@
 int running = 1, autoNew = 1;
 const int microToMilli = 1000;
 
-int mainLoop(int passengerThreshold, int maxLevels, int maxWaiters, int maxPassengers, int elevatorSteps,int sleepMS){
+int mainLoop(int passengerThreshold, int maxLevels, int maxWaiters, int maxPassengers, int elevatorSteps,int sleepMS, int doorTime){
 
 	int newPassenger = 1;
-	initElevator(maxLevels, maxPassengers, elevatorSteps);
+	initElevator(maxLevels, maxPassengers, elevatorSteps, doorTime);
 	initPassengers(maxWaiters, maxPassengers, maxLevels);
 
 	while(running){
